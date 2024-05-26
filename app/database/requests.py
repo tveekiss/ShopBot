@@ -5,7 +5,7 @@ from sqlalchemy import select, update
 async def get_all_categories():
     async with async_session() as session:
         categories = await session.execute(select(Category))
-        categories = categories.scalars().all().unique()
+        categories = categories.scalars().unique().all()
         return categories
 
 
@@ -13,7 +13,7 @@ async def get_all_brands(category_id):
     async with async_session() as session:
         print(category_id)
         brands = await session.execute(select(Brand).where(Brand.category_id == category_id))
-        brands = brands.scalars().all().unique()
+        brands = brands.scalars().unique().all()
         print(brands)
         return brands
 
@@ -21,6 +21,14 @@ async def get_all_brands(category_id):
 async def get_all_items():
     async with async_session() as session:
         items = await session.execute(select(Item))
+        items = items.scalars().unique().all()
+        return items
+
+
+async def get_items_by_category(category_id):
+    async with async_session() as session:
+        category = await session.get(Category, category_id)
+        items = await session.execute(select(Item).join(Brand).join(Category).filter(Brand.category_id == category_id))
         items = items.scalars().unique().all()
         return items
 
@@ -33,28 +41,39 @@ async def add_category(name):
         await session.commit()
 
 
+async def get_category(category_id):
+    async with async_session() as session:
+        category = await session.get(Category, category_id)
+        return category
+
+
 async def update_category(category_id, name):
     async with async_session() as session:
-        category = session.get(Category, category_id)
+        category = await session.get(Category, category_id)
         category.name = name
-        await session.refresh(category)
+        session.refresh(category)
         await session.commit()
 
 
 async def delete_category(category_id):
     async with async_session() as session:
-        category = session.get(Category, category_id)
+        category = await session.get(Category, category_id)
         await session.delete(category)
         await session.commit()
 
 
 async def add_brand(name, category_id):
     async with async_session() as session:
-        category = await session.execute(select(Category).where(Category.id == category_id))
-        category = category.scalars().one_or_none()
+        category = await session.get(Category, category_id)
         brand = Brand(name=name, category=category)
         session.add(brand)
         await session.commit()
+
+
+async def get_brand(brand_id):
+    async with async_session() as session:
+        brand = await session.get(Brand, brand_id)
+        return brand
 
 
 async def update_brand(brand_id, name=None, category_id=None):
@@ -64,42 +83,50 @@ async def update_brand(brand_id, name=None, category_id=None):
             brand.name = name
         if category_id is not None:
             brand.category_id = category_id
-        await session.refresh(brand)
+        session.refresh(brand)
         await session.commit()
 
 
 async def delete_brand(brand_id):
     async with async_session() as session:
-        brand = await session.execute(select(Brand).where(Brand.id == brand_id))
-        brand = brand.scalars().one_or_none()
+        brand = await session.get(Brand, brand_id)
         await session.delete(brand)
         await session.commit()
 
 
 async def add_item(name, price, description, brand_id, photo):
     async with async_session() as session:
-        item = Item(name=name, price=int(price), description=description, brand_id=brand_id, photo=photo)
+        item = Item(name=name, price=price, description=description, brand_id=brand_id, photo=photo)
         session.add(item)
         await session.commit()
 
 
-async def update_item(item_id, name, price, description, brand_id):
+async def get_item(item_id):
+    async with async_session() as session:
+        item = await session.get(Item, item_id)
+        return item
+
+
+async def update_item(item_id, name=None, price=None, description=None, brand_id=None, photo=None):
     async with async_session() as session:
         item = await session.get(Item, item_id)
         if name is not None:
             item.name = name
         if price is not None:
-            item.price = int(price)
+            item.price = price
         if description is not None:
             item.description = description
         if brand_id is not None:
-            item.brand_id = brand_id
-        await session.refresh(item)
+            brand = await session.get(Brand, brand_id)
+            item.brand = brand
+        if photo is not None:
+            item.photo = photo
+        session.refresh(item)
         await session.commit()
 
 
 async def delete_item(item_id):
     async with async_session() as session:
-        item = session.get(Item, item_id)
+        item = await session.get(Item, item_id)
         await session.delete(item)
         await session.commit()

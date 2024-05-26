@@ -6,6 +6,7 @@ from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
 from handlers import register_command_handlers, register_handlers
 from database.models import async_main
+from app.commands.command_list import set_commands_list
 
 load_dotenv()
 bot = Bot(token=os.getenv('TOKEN'))
@@ -17,6 +18,7 @@ async def main():
     await async_main()
     register_command_handlers(dp)
     register_handlers(dp)
+    await set_commands_list(bot)
     await dp.start_polling(bot)
 
 

@@ -6,7 +6,6 @@ from sqlalchemy import BigInteger, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
 
-
 load_dotenv()
 
 engine = create_async_engine(os.getenv("SQLALCHEMY_URL"), echo=True)
@@ -23,7 +22,7 @@ class Category(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(unique=True)
 
-    brands: Mapped[list['Brand']] = relationship(back_populates="category", lazy='joined')
+    brands: Mapped[list['Brand']] = relationship(back_populates="category", lazy='joined', cascade='all, delete')
 
     def __str__(self):
         return self.name
@@ -36,8 +35,8 @@ class Brand(Base):
     name: Mapped[str]
     category_id: Mapped[int] = mapped_column(ForeignKey('categories.id', ondelete='CASCADE'))
 
-    category: Mapped['Category'] = relationship(back_populates='brands', lazy='joined')
-    items: Mapped[list['Item']] = relationship(back_populates='brand', lazy='joined')
+    category: Mapped['Category'] = relationship(back_populates='brands', lazy='joined', cascade='all, delete')
+    items: Mapped[list['Item']] = relationship(back_populates='brand', lazy='joined', cascade='all, delete')
 
     def __str__(self):
         return f'{self.name} ({self.category_id})'
@@ -53,7 +52,7 @@ class Item(Base):
     price: Mapped[int]
     brand_id: Mapped[int] = mapped_column(ForeignKey("brands.id", ondelete='CASCADE'))
 
-    brand: Mapped['Brand'] = relationship(back_populates='items', lazy='joined')
+    brand: Mapped['Brand'] = relationship(back_populates='items', lazy='joined', cascade='all, delete')
 
 
 async def async_main():

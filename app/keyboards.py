@@ -16,7 +16,7 @@ settings_keyboard = ReplyKeyboardMarkup(keyboard=[
             text='Назад'
         )
     ]
-], resize_keyboard=True)
+], resize_keyboard=True, one_time_keyboard=True)
 
 
 settings_choice_keyboard = ReplyKeyboardMarkup(keyboard=[
@@ -64,7 +64,38 @@ settings_edit_item = ReplyKeyboardMarkup(keyboard=[
             text='Цена'
         ),
         KeyboardButton(
-            text='Бренд'
+            text=r'Бренд\Категория'
+        )
+    ], [
+        KeyboardButton(
+            text='Назад'
         )
     ]
-])
+], resize_keyboard=True, one_time_keyboard=True)
+
+
+delete_keyboard = ReplyKeyboardMarkup(keyboard=[
+    [
+        KeyboardButton(
+            text='Удалить'
+        ),
+    ], [
+        KeyboardButton(
+            text='Отмена'
+        )
+    ]
+], resize_keyboard=True, one_time_keyboard=True)
+
+
+start_keyboard = ReplyKeyboardMarkup(keyboard=[
+    [
+        KeyboardButton(
+            text='Все товары'
+        ),
+        KeyboardButton(
+            text='Каталог'
+        )
+    ]
+], resize_keyboard=True)
+
+
