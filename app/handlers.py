@@ -14,7 +14,7 @@ from commands.settings import (settings_command, AdminAction,
 from app.all_items import all_items, check_action, PagesAction, catalog, catalog_items
 from app.commands.token import get_token
 from app.basket import (basket_create, basket_main, basket_all_delete, basket_delete, basket_item_delete,
-                        Quantity, call_change_quantity, finish_quantity, change_quantity)
+                        Quantity, call_change_quantity, finish_quantity, change_quantity, basket_complete)
 
 
 def register_handlers(router: Router):
@@ -73,6 +73,7 @@ def register_handlers(router: Router):
     router.message.register(change_quantity, F.text == 'Изменить количество')
     router.message.register(finish_quantity, Quantity.edit_quantity)
     router.message.register(basket_create, Quantity.quantity)
+    router.message.register(basket_complete, F.text == 'Оформить заказ')
 
 
 def register_command_handlers(router: Router):

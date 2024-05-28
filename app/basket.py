@@ -1,3 +1,5 @@
+import os
+
 from aiogram.types import CallbackQuery, Message, InlineKeyboardButton
 from aiogram import Bot
 from aiogram.fsm.context import FSMContext
@@ -7,6 +9,7 @@ from app.keyboards import basket_keyboard, start_keyboard, quantity_keyboard
 from app.commands.start import start_command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.fsm.state import StatesGroup, State
+from dotenv import load_dotenv
 
 
 class Quantity(StatesGroup):
@@ -41,7 +44,10 @@ async def change_quantity(message: Message, state: FSMContext):
 
 
 async def finish_quantity(message: Message, state: FSMContext, bot: Bot):
-    if not 0 < int(message.text) <= 100:
+    try:
+        if not 0 < int(message.text) <= 100:
+            raise ValueError
+    except ValueError:
         await message.answer('Введите число от 1 до 100')
         return
     context_data = await state.get_data()
@@ -67,7 +73,6 @@ async def basket_create(call: CallbackQuery):
                               parse_mode=ParseMode.HTML)
     
 
-
 async def basket_main(message: Message, bot: Bot):
     baskets = await get_all_baskets(message.from_user.id)
     if len(baskets) == 0:
@@ -81,6 +86,7 @@ async def basket_main(message: Message, bot: Bot):
                  f' <b>{basket.item.price * basket.quantity}</b> руб\n')
         total_price += basket.item.price * basket.quantity
     text += f'\nПолная стоимость: <b>{total_price}</b>'
+    text += '\n\n Желаете ли вы оформить заказ?'
     await bot.send_message(chat_id=message.from_user.id, text=text, reply_markup=basket_keyboard,
                            parse_mode=ParseMode.HTML)
 
@@ -109,3 +115,21 @@ async def basket_delete(call: CallbackQuery, bot: Bot):
     await delete_basket(basket_id)
     await call.message.answer(f'Товар <b>{item_name}</b> успешно удален из корзины', parse_mode=ParseMode.HTML)
     await basket_main(call, bot)
+
+
+async def basket_complete(message: Message, bot: Bot):
+    baskets = await get_all_baskets(message.from_user.id)
+    if len(baskets) == 0:
+        await message.answer('У вас нету товаров в корзине')
+        return
+    text = f'Пользователь {message.from_user.full_name} желает сделать покупку на следующие товары:\n\n'
+    total_price = 0
+    for basket in baskets:
+        text += f'<b>{basket.item.name}</b> - {basket.quantity} шт. <b>{basket.item.price * basket.quantity}</b> руб\n'
+        total_price += basket.item.price * basket.quantity
+        await delete_basket(basket.id)
+    text += f'\nОбщая стоимость покупки равна: <b>{total_price}</b> руб'
+    load_dotenv()
+    await bot.send_message(chat_id=os.getenv('GROUP_ID'), text=text, parse_mode=ParseMode.HTML)
+    await message.answer('Запрос на покупку отправлен')
+    await start_command(message)
