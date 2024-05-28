@@ -16,7 +16,7 @@ settings_keyboard = ReplyKeyboardMarkup(keyboard=[
             text='Назад'
         )
     ]
-], resize_keyboard=True, one_time_keyboard=True)
+], resize_keyboard=True)
 
 
 settings_choice_keyboard = ReplyKeyboardMarkup(keyboard=[
@@ -95,7 +95,47 @@ start_keyboard = ReplyKeyboardMarkup(keyboard=[
         KeyboardButton(
             text='Каталог'
         )
+    ], [
+        KeyboardButton(
+            text='Корзина'
+        )
     ]
 ], resize_keyboard=True)
 
 
+basket_keyboard = ReplyKeyboardMarkup(keyboard=[
+    [
+        KeyboardButton(
+            text='Оформить заказ'
+        )
+    ], [
+        KeyboardButton(
+            text='Удалить товар'
+        ),
+        KeyboardButton(
+            text='Изменить количество'
+        ),
+        KeyboardButton(
+            text='Очистить корзину'
+        )
+    ], [
+        KeyboardButton(
+            text='Главная'
+        )
+    ]
+], resize_keyboard=True)
+
+quantity_keyboard = ReplyKeyboardMarkup(keyboard=[
+    [
+        KeyboardButton(
+            text='1'
+        )
+    ], [
+        KeyboardButton(
+            text='2'
+        ),
+        KeyboardButton(
+            text='3'
+        )
+    ]
+], resize_keyboard=True)

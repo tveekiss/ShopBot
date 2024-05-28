@@ -13,6 +13,8 @@ from commands.settings import (settings_command, AdminAction,
                                confirm_delete, finish_delete, Delete)
 from app.all_items import all_items, check_action, PagesAction, catalog, catalog_items
 from app.commands.token import get_token
+from app.basket import (basket_create, basket_main, basket_all_delete, basket_delete, basket_item_delete,
+                        Quantity, call_change_quantity, finish_quantity, change_quantity)
 
 
 def register_handlers(router: Router):
@@ -61,6 +63,16 @@ def register_handlers(router: Router):
     router.message.register(catalog, F.text == 'Каталог')
     router.callback_query.register(catalog_items, F.data.startswith('category_'))
     router.message.register(check_action, PagesAction.page)
+    router.message.register(basket_main, F.text == 'Корзина')
+    router.message.register(start_command, F.text == 'Главная')
+    router.message.register(basket_all_delete, F.text == 'Очистить корзину')
+    router.message.register(basket_item_delete, F.text == 'Удалить товар')
+    router.callback_query.register(basket_delete, F.data.startswith('BasketDelete_'))
+    router.callback_query.register(basket_create, F.data.startswith('AddItem_'))
+    router.callback_query.register(call_change_quantity, F.data.startswith('ChangeQuantity_'))
+    router.message.register(change_quantity, F.text == 'Изменить количество')
+    router.message.register(finish_quantity, Quantity.edit_quantity)
+    router.message.register(basket_create, Quantity.quantity)
 
 
 def register_command_handlers(router: Router):

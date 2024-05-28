@@ -1,4 +1,4 @@
-from app.database.models import async_session, Brand, Item, Category
+from app.database.models import async_session, Brand, Item, Category, Basket
 from sqlalchemy import select, update
 
 
@@ -129,4 +129,44 @@ async def delete_item(item_id):
     async with async_session() as session:
         item = await session.get(Item, item_id)
         await session.delete(item)
+        await session.commit()
+
+
+async def create_basket(item_id, tg_id, quantity):
+    async with async_session() as session:
+        basket_check = await session.scalar(select(Basket).
+                                            where(Basket.item_id == item_id, Basket.user_id == tg_id))
+        if basket_check is None:
+            basket = Basket(item_id=item_id, user_id=tg_id, quantity=quantity)
+        else:
+            basket = basket_check
+            basket.quantity += 1
+        session.add(basket)
+        await session.commit()
+
+
+async def delete_basket(basket_id):
+    async with async_session() as session:
+        basket = await session.get(Basket, basket_id)
+        await session.delete(basket)
+        await session.commit()
+
+
+async def get_all_baskets(tg_id):
+    async with async_session() as session:
+        baskets = await session.execute(select(Basket).where(Basket.user_id == tg_id))
+        baskets = baskets.scalars().unique().all()
+        return baskets
+
+
+async def get_basket(basket_id):
+    async with async_session() as session:
+        basket = await session.get(Basket, basket_id)
+        return basket
+
+
+async def edit_quantity(basket_id, quantity):
+    async with async_session() as session:
+        basket = await session.get(Basket, basket_id)
+        basket.quantity = quantity
         await session.commit()

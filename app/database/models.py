@@ -22,7 +22,7 @@ class Category(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(unique=True)
 
-    brands: Mapped[list['Brand']] = relationship(back_populates="category", lazy='joined', cascade='all, delete')
+    brands: Mapped[list['Brand']] = relationship(back_populates="category", lazy='joined', cascade='delete')
 
     def __str__(self):
         return self.name
@@ -35,8 +35,8 @@ class Brand(Base):
     name: Mapped[str]
     category_id: Mapped[int] = mapped_column(ForeignKey('categories.id', ondelete='CASCADE'))
 
-    category: Mapped['Category'] = relationship(back_populates='brands', lazy='joined', cascade='all, delete')
-    items: Mapped[list['Item']] = relationship(back_populates='brand', lazy='joined', cascade='all, delete')
+    category: Mapped['Category'] = relationship(back_populates='brands', lazy='joined')
+    items: Mapped[list['Item']] = relationship(back_populates='brand', lazy='joined', cascade='delete')
 
     def __str__(self):
         return f'{self.name} ({self.category_id})'
@@ -52,7 +52,19 @@ class Item(Base):
     price: Mapped[int]
     brand_id: Mapped[int] = mapped_column(ForeignKey("brands.id", ondelete='CASCADE'))
 
-    brand: Mapped['Brand'] = relationship(back_populates='items', lazy='joined', cascade='all, delete')
+    brand: Mapped['Brand'] = relationship(back_populates='items', lazy='joined')
+    baskets: Mapped[list['Basket']] = relationship(back_populates='item', lazy='joined', cascade='delete')
+
+
+class Basket(Base):
+    __tablename__ = "baskets"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id = mapped_column(BigInteger)
+    item_id: Mapped[int] = mapped_column(ForeignKey("items.id"))
+    quantity: Mapped[int]
+
+    item: Mapped['Item'] = relationship(back_populates='baskets', lazy='joined')
 
 
 async def async_main():

@@ -81,19 +81,23 @@ async def show_items(message: Message, state: FSMContext, bot: Bot):
     context_data = await state.get_data()
     list_class: ItemList = context_data['list_class']
     for item in list_class.current_page():
+        builder_item = InlineKeyboardBuilder()
+        builder_item.button(text='Добавить в корзину', callback_data=f'AddItem_{item.id}')
         text = (f'<b>{item.name}</b> \n\n'
                 f'{item.description}\n\n'
                 f'Цена: <b>{item.price}</b>\n'
                 f'Категория: <b>{item.brand.category.name}</b>\n'
                 f'Бренд: <b>{item.brand.name}</b>')
-        await bot.send_photo(chat_id=message.from_user.id, photo=item.photo, caption=text, parse_mode=ParseMode.HTML)
+        await bot.send_photo(chat_id=message.from_user.id, photo=item.photo, caption=text, parse_mode=ParseMode.HTML,
+                             reply_markup=builder_item.as_markup())
     builder = ReplyKeyboardBuilder()
     if list_class.previous_page(check=True):
         builder.add(KeyboardButton(text='Предыдущая'))
     if list_class.next_page(check=True):
         builder.add(KeyboardButton(text='Следующая'))
     builder.row(KeyboardButton(text='Главная'))
-    await bot.send_message(chat_id= message.from_user.id, text=list_class.get_page(), reply_markup=builder.as_markup(resize_keyboard=True))
+    await bot.send_message(chat_id=message.from_user.id, text=list_class.get_page(),
+                           reply_markup=builder.as_markup(resize_keyboard=True))
     await state.set_state(PagesAction.page)
 
 
