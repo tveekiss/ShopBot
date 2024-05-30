@@ -2,6 +2,7 @@ from aiogram import Router, F
 from aiogram.filters import Command
 
 from commands.start import start_command
+from commands.help import help_command
 from commands.settings import (settings_command, AdminAction,
                                add_action, AdminChoice, settings_redirection, finish_category, CategoryAction,
                                BrandAction, set_brand, SettingsCallback, finish_brand, ItemAction, set_description,
@@ -81,3 +82,4 @@ def register_command_handlers(router: Router):
     router.message.register(start_command, Command(commands=['start']))
     router.message.register(settings_command, Command(commands=['settings']))
     router.message.register(get_token, Command(commands=['token']))
+    router.message.register(help_command, Command(commands=['help']))
