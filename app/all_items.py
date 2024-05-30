@@ -1,5 +1,5 @@
 from aiogram.types import Message, KeyboardButton, CallbackQuery
-from app.database.requests import get_all_items, get_all_categories, get_items_by_category
+from app.database.requests import get_all_items, get_all_categories, get_items_by_category, get_item
 from aiogram import Bot
 from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
@@ -71,9 +71,27 @@ async def catalog(message: Message):
 
 async def catalog_items(call: CallbackQuery, state: FSMContext, bot: Bot):
     items = await get_items_by_category(int(call.data.split('_')[1]))
-    list_class = ItemList(items)
-    await state.update_data(list_class=list_class)
-    await show_items(call, state, bot)
+    builder = InlineKeyboardBuilder()
+    for item in items:
+        builder.button(text=item.name, callback_data=f'ItemShow_{item.id}')
+    builder.adjust(1)
+    await call.message.answer('Выберите товар', reply_markup=builder.as_markup())
+
+
+async def show_item(call: CallbackQuery, bot: Bot):
+    item_id = int(call.data.split('_')[1])
+    item = await get_item(item_id)
+    builder_item = InlineKeyboardBuilder()
+    builder_item.button(text='Добавить в корзину', callback_data=f'AddItem_{item.id}')
+    text = (f'<b>{item.name}</b> \n\n'
+            f'{item.description}\n\n'
+            f'Цена: <b>{item.price}</b>\n'
+            f'Категория: <b>{item.brand.category.name}</b>\n'
+            f'Бренд: <b>{item.brand.name}</b>')
+    await bot.send_photo(chat_id=call.from_user.id, photo=item.photo, caption=text, parse_mode=ParseMode.HTML,
+                         reply_markup=builder_item.as_markup())
+
+
 
 
 async def show_items(message: Message, state: FSMContext, bot: Bot):

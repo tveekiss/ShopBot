@@ -11,7 +11,7 @@ from commands.settings import (settings_command, AdminAction,
                                choice_edit_item, edit_item, finish_edit_name_item, finish_edit_desc_item,
                                finish_edit_image_item, finish_edit_price_item, edit_item_brand, finish_edit_item_brand,
                                confirm_delete, finish_delete, Delete)
-from app.all_items import all_items, check_action, PagesAction, catalog, catalog_items
+from app.all_items import all_items, check_action, PagesAction, catalog, catalog_items, show_item
 from app.commands.token import get_token
 from app.basket import (basket_create, basket_main, basket_all_delete, basket_delete, basket_item_delete,
                         Quantity, call_change_quantity, finish_quantity, change_quantity, basket_complete)
@@ -62,6 +62,7 @@ def register_handlers(router: Router):
     router.message.register(all_items, F.text == 'Все товары')
     router.message.register(catalog, F.text == 'Каталог')
     router.callback_query.register(catalog_items, F.data.startswith('category_'))
+    router.callback_query.register(show_item, F.data.startswith('ItemShow_'))
     router.message.register(check_action, PagesAction.page)
     router.message.register(basket_main, F.text == 'Корзина')
     router.message.register(start_command, F.text == 'Главная')
