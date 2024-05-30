@@ -1,5 +1,5 @@
 from app.database.models import async_session, Brand, Item, Category, Basket
-from sqlalchemy import select, update
+from sqlalchemy import select
 
 
 async def get_all_categories():
@@ -27,7 +27,6 @@ async def get_all_items():
 
 async def get_items_by_category(category_id):
     async with async_session() as session:
-        category = await session.get(Category, category_id)
         items = await session.execute(select(Item).join(Brand).join(Category).filter(Brand.category_id == category_id))
         items = items.scalars().unique().all()
         return items

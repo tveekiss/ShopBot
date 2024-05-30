@@ -16,5 +16,3 @@ async def start_command(message: Message):
             f'Что бы редактировать товары введи /settings'
         )
     print(message.from_user.id)
-
-

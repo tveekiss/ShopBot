@@ -69,7 +69,7 @@ async def catalog(message: Message):
     await message.answer('Выберите категорию', reply_markup=builder.as_markup())
 
 
-async def catalog_items(call: CallbackQuery, state: FSMContext, bot: Bot):
+async def catalog_items(call: CallbackQuery):
     items = await get_items_by_category(int(call.data.split('_')[1]))
     builder = InlineKeyboardBuilder()
     for item in items:
@@ -90,8 +90,6 @@ async def show_item(call: CallbackQuery, bot: Bot):
             f'Бренд: <b>{item.brand.name}</b>')
     await bot.send_photo(chat_id=call.from_user.id, photo=item.photo, caption=text, parse_mode=ParseMode.HTML,
                          reply_markup=builder_item.as_markup())
-
-
 
 
 async def show_items(message: Message, state: FSMContext, bot: Bot):

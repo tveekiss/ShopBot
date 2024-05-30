@@ -1,11 +1,11 @@
 import os
 
-from aiogram.types import CallbackQuery, Message, InlineKeyboardButton
+from aiogram.types import CallbackQuery, Message
 from aiogram import Bot
 from aiogram.fsm.context import FSMContext
 from app.database.requests import create_basket, delete_basket, get_basket, get_all_baskets, get_item, edit_quantity
 from aiogram.enums import ParseMode
-from app.keyboards import basket_keyboard, start_keyboard, quantity_keyboard
+from app.keyboards import basket_keyboard, start_keyboard
 from app.commands.start import start_command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.fsm.state import StatesGroup, State
@@ -34,7 +34,7 @@ async def call_change_quantity(call: CallbackQuery, state: FSMContext):
     await state.set_state(Quantity.edit_quantity)
 
 
-async def change_quantity(message: Message, state: FSMContext):
+async def change_quantity(message: Message):
     builder = InlineKeyboardBuilder()
     baskets = await get_all_baskets(message.from_user.id)
     for basket in baskets:
@@ -76,7 +76,7 @@ async def basket_create(call: CallbackQuery):
 async def basket_main(message: Message, bot: Bot):
     baskets = await get_all_baskets(message.from_user.id)
     if len(baskets) == 0:
-        await bot.send_message(chat_id=message.from_user.id, text='У вас нету товаров в корзине',
+        await bot.send_message(chat_id=message.from_user.id, text='У вас нет товаров в корзине',
                                reply_markup=start_keyboard)
         return
     text = 'Товары которые у вас в корзине:\n\n'
@@ -120,7 +120,7 @@ async def basket_delete(call: CallbackQuery, bot: Bot):
 async def basket_complete(message: Message, bot: Bot):
     baskets = await get_all_baskets(message.from_user.id)
     if len(baskets) == 0:
-        await message.answer('У вас нету товаров в корзине')
+        await message.answer('У вас нет товаров в корзине')
         return
     text = f'Пользователь {message.from_user.full_name} желает сделать покупку на следующие товары:\n\n'
     total_price = 0

@@ -47,6 +47,7 @@ class ItemAction(StatesGroup):
     edit_price = State()
     edit_choice = State()
 
+
 class Delete(StatesGroup):
     confirm = State()
 
@@ -132,7 +133,7 @@ async def set_brand(message: Message, state: FSMContext):
     await set_category(message, state)
 
 
-async def finish_brand( call: CallbackQuery, state: FSMContext, callback_data: SettingsCallback):
+async def finish_brand(call: CallbackQuery, state: FSMContext, callback_data: SettingsCallback):
     context_data = await state.get_data()
     category_id = callback_data.model_id
     name = context_data['brand_name']
@@ -251,7 +252,8 @@ async def start_edit_category(message: Message):
     builder = InlineKeyboardBuilder()
     for category in categories:
         builder.button(text=category.name,
-                       callback_data=SettingsCallback(action='Изменить модель категории', model=None, model_id=category.id))
+                       callback_data=SettingsCallback(action='Изменить модель категории',
+                                                      model=None, model_id=category.id))
     builder.adjust(2)
     await message.answer(
         'Выберите какую категорию вы хотите изменить',
@@ -285,7 +287,8 @@ async def start_edit_brand(message: Message):
         brands = await get_all_brands(category.id)
         for brand in brands:
             builder.button(text=f'{brand.name} ({category.name})',
-                           callback_data=SettingsCallback(action='Изменить модель бренда', model=None, model_id=brand.id))
+                           callback_data=SettingsCallback(action='Изменить модель бренда',
+                                                          model=None, model_id=brand.id))
     builder.adjust(1)
     await message.answer(
         'Выберите какой бренд вы хотите изменить',
@@ -333,7 +336,8 @@ async def edit_category_brand(message: Message):
     categories = await get_all_categories()
     for category in categories:
         builder.button(text=category.name,
-                       callback_data=SettingsCallback(action='Изменить категорию бренда', model=None, model_id=category.id))
+                       callback_data=SettingsCallback(action='Изменить категорию бренда',
+                                                      model=None, model_id=category.id))
     builder.adjust(2)
     print(1)
     await message.answer(
@@ -490,7 +494,8 @@ async def edit_item_category(message: Message):
     builder = InlineKeyboardBuilder()
     for category in categories:
         builder.button(text=category.name,
-                       callback_data=SettingsCallback(action='Изменить категорию товара', model=None, model_id=category.id))
+                       callback_data=SettingsCallback(action='Изменить категорию товара',
+                                                      model=None, model_id=category.id))
     builder.adjust(2)
     print(1)
     await message.answer(
